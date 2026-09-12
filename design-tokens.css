@@ -1,0 +1,143 @@
+/**
+ * Kehinde Omolola Portfolio — Design Tokens
+ * "Brass & Slate" — warm, mature, dark theme
+ * ==========================================================================
+ * This file must exist at the project root, per AGENTS.md Section 4.
+ * Import it once in src/app/globals.css. Never hardcode a hex value in
+ * any component — always reference these variables.
+ * ==========================================================================
+ */
+
+:root {
+  /* ========================================================================
+     BACKGROUNDS — warm charcoal, not cold black or navy
+     ======================================================================== */
+  --color-bg-primary: #1A1712;
+  --color-bg-secondary: #211D16;
+  --color-bg-tertiary: #2A251C;
+  --color-bg-elevated: #332C20;
+
+  /* ========================================================================
+     PRIMARY — Brass / Gold
+     ======================================================================== */
+  --color-primary: #D4AF5F;
+  --color-on-primary: #2A1F0A;
+  --color-primary-container: #4A3A1A;
+  --color-on-primary-container: #F0DEB0;
+
+  /* ========================================================================
+     SECONDARY — Slate Blue
+     ======================================================================== */
+  --color-secondary: #8FA9C2;
+  --color-on-secondary: #12212F;
+  --color-secondary-container: #253746;
+  --color-on-secondary-container: #D3E1EC;
+
+  /* ========================================================================
+     ACCENT / TERTIARY — Burgundy
+     ======================================================================== */
+  --color-accent: #B25A6E;
+  --color-on-accent: #2E0E14;
+  --color-accent-container: #4A1F29;
+  --color-on-accent-container: #EFC9D1;
+
+  /* ========================================================================
+     SUCCESS
+     ======================================================================== */
+  --color-success: #5FB98A;
+  --color-on-success: #0B2A1A;
+  --color-success-container: #1E4430;
+  --color-on-success-container: #C3EBD5;
+
+  /* ========================================================================
+     WARNING — distinct hue from Primary, on purpose
+     ======================================================================== */
+  --color-warning: #E5B54F;
+  --color-on-warning: #000000;
+  --color-warning-container: #4A3712;
+  --color-on-warning-container: #F5DFA0;
+
+  /* ========================================================================
+     ERROR
+     ======================================================================== */
+  --color-error: #D9686A;
+  --color-on-error: #2E0808;
+  --color-error-container: #4A1616;
+  --color-on-error-container: #F5C6C7;
+
+  /* ========================================================================
+     INFO
+     ======================================================================== */
+  --color-info: #7FADD6;
+  --color-on-info: #0A1F30;
+  --color-info-container: #1F3A50;
+  --color-on-info-container: #D0E4F2;
+
+  /* ========================================================================
+     TEXT
+     Verified against --color-bg-primary with the WCAG contrast formula
+     (contrast-verification-procedure skill), Checkpoint 4:
+       text-primary / bg-primary   -> 15.72:1 (passes 4.5:1)
+       text-secondary / bg-primary -> 9.90:1  (passes 4.5:1)
+     ======================================================================== */
+  --color-text-primary: #F4F0E8;
+  --color-text-secondary: #C9C0AE;
+  --color-text-muted: #8A8272;
+
+  /* ========================================================================
+     BORDERS
+     ======================================================================== */
+  --color-border: #332C20;
+  --color-border-accent: #D4AF5F;
+
+  /* ========================================================================
+     TYPOGRAPHY — font families
+     ======================================================================== */
+  --font-primary: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif; /* hero name + section titles only */
+
+  /* ========================================================================
+     TYPOGRAPHY — size scale
+     ======================================================================== */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;    /* 18px */
+  --font-size-xl: 1.25rem;     /* 20px */
+  --font-size-2xl: 1.5rem;     /* 24px */
+  --font-size-3xl: 1.875rem;   /* 30px */
+  --font-size-4xl: 2.25rem;    /* 36px */
+  --font-size-5xl: 3rem;       /* 48px */
+  --font-size-6xl: 3.75rem;    /* 60px — scale down on mobile via clamp() or media query */
+
+  /* ========================================================================
+     SPACING
+     ======================================================================== */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* ========================================================================
+     BORDER RADIUS — deliberately tight/editorial, not app-rounded
+     ======================================================================== */
+  --radius-sm: 0.125rem;   /* 2px */
+  --radius-md: 0.25rem;    /* 4px */
+  --radius-lg: 0.5rem;     /* 8px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-full: 9999px;   /* pills / tags only */
+}
+
+/* ==========================================================================
+   UTILITY CLASS — brass gradient hero text
+   ========================================================================== */
+.text-gradient-brass {
+  background: linear-gradient(135deg, #D4AF5F, #F0DEB0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

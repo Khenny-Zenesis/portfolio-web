@@ -30,11 +30,15 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — never commit real secrets; .env.example (placeholders only) is the exception, per git-conventions.md
 .env*
+!.env.example
 
 # vercel
 .vercel
+
+# local planning doc — kept out of the repo intentionally, not versioned
+/portfolio PRD/
 
 # typescript
 *.tsbuildinfo

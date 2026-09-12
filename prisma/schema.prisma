@@ -1,0 +1,199 @@
+// Prisma schema — Kehinde Omolola Portfolio.
+// Per PRD Section 10 / AGENTS.md Section 2: Project, Skill (SkillLevel enum),
+// the four NextAuth v5 adapter tables, ChatSession, CoverLetterGeneration.
+// ChatSession and CoverLetterGeneration are modeled now even though Phase 1
+// doesn't use them yet — table definitions are cheap, per Checkpoint 3.
+//
+// Prisma 7 breaking change: `url`/`directUrl` are no longer valid fields on
+// `datasource` here — connection strings moved to prisma.config.ts (for
+// Migrate) and to the driver adapter constructed in src/lib/db.ts (for the
+// runtime client). See prisma.config.ts for the rationale.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Public portfolio content
+// ---------------------------------------------------------------------------
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  techStack   String[]
+
+  // Array, not a single String: the real seed content (AGENTS.md Section 8)
+  // has Provly tagged "AI Tool + Startup" — a project can genuinely belong to
+  // more than one of the PRD 5A-item-4 filter categories (Product Design,
+  // Web App, AI Tool, Startup). The public filter is still client-side per
+  // PRD 5A item 4; this index exists because database-schema.md requires it
+  // by name regardless.
+  category String[]
+
+  liveUrl    String?
+  githubUrl  String?
+
+  // Vercel Blob storage keys only — never a file, base64, or full external
+  // URL. Enforced again at the API layer in Checkpoint 5.
+  // See uploads-and-storage.md / database-schema.md.
+  screenshots String[]
+
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  completedAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Exact query the public grid runs: published + featured first, then by
+  // completedAt descending (PRD 5A item 5).
+  @@index([published, featured, completedAt])
+  @@index([category])
+}
+
+enum SkillLevel {
+  LEARNING
+  PROFICIENT
+  ADVANCED
+}
+
+model Skill {
+  id       String     @id @default(cuid())
+  name     String
+  category String
+  level    SkillLevel
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+}
+
+// ---------------------------------------------------------------------------
+// NextAuth.js v5 — admin authentication only. All four tables required
+// exactly as the Prisma adapter expects; fields are not renamed or removed
+// even where unused by a Credentials-only, single-admin setup, per
+// database-schema.md and AGENTS.md Section 2.
+// Schema verbatim from https://authjs.dev/getting-started/adapters/prisma
+// (default camelCase variant, no @map needed — no snake_case requirement
+// elsewhere in this project).
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  // Added field, not part of the stock Auth.js adapter schema — required for
+  // Credentials-based admin login (Checkpoint 5, Open Question 2: seed-script
+  // approach). Additive only; no adapter-expected field was renamed/removed.
+  hashedPassword String?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3 — chatbot. Not used until then; modeled now per Checkpoint 3.
+// ---------------------------------------------------------------------------
+
+model ChatSession {
+  id String @id @default(cuid())
+
+  // JSONB, not JSON, per database-schema.md — query performance on the
+  // message history.
+  messages Json @db.JsonB
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Contact form (PRD 5A item 10 / Goal 6). Added in Checkpoint 5 — not present
+// in PRD Section 10's original model list, per Open Question 3's resolution:
+// submissions are persisted (for the Goal 6 tracking metric) AND trigger a
+// Resend notification email.
+// ---------------------------------------------------------------------------
+
+enum ContactSource {
+  LINKEDIN
+  X
+  WOMEN_IN_CLOUD
+  GOOGLE_SEARCH
+  REFERRAL
+  OTHER
+}
+
+model ContactSubmission {
+  id      String        @id @default(cuid())
+  name    String
+  email   String
+  message String
+  source  ContactSource
+
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Phase 2 — public cover letter generator. Not used until then; modeled now
+// per Checkpoint 3.
+// ---------------------------------------------------------------------------
+
+model CoverLetterGeneration {
+  id String @id @default(cuid())
+
+  ipAddress String
+
+  // Truncated to 500 chars at the application layer before insert, per
+  // ai-pipeline.md ("no full job posting retained long-term"); capped again
+  // here as defense in depth.
+  jobDescription String @db.VarChar(500)
+
+  wordCount   Int?
+  generatedAt DateTime @default(now())
+
+  // The rate-limit check this table actually exists to serve (5/IP/hour),
+  // per database-schema.md and PRD 5D item 35.
+  @@index([ipAddress, generatedAt])
+}
