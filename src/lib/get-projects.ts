@@ -16,7 +16,17 @@ async function resolveScreenshotUrl(key: string): Promise<string | null> {
     const blob = await head(key);
     return blob.url;
   } catch (error) {
-    console.error("[get-projects] failed to resolve screenshot", key, error);
+    // TEMPORARY — sharpened for live debugging of a production-only "image
+    // silently doesn't render" report (confirmed via HAR file: zero network
+    // requests, not even a failed one — this catch path returning null
+    // instead of throwing is exactly why: Projects.tsx's
+    // `screenshots[0]?.url &&` gate never renders the <Image> at all when
+    // this happens). Logging error.name/message explicitly because a raw
+    // Error object often serializes uselessly (e.g. just "{}") in Vercel's
+    // Runtime Log viewer. Remove once the underlying cause is confirmed.
+    const name = error instanceof Error ? error.name : typeof error;
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[get-projects] head() failed for screenshot key="${key}" — ${name}: ${message}`);
     return null;
   }
 }
