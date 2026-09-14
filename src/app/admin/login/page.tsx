@@ -42,15 +42,17 @@ export default async function AdminLoginPage({
   };
 
   return (
-    <main className="mx-auto flex max-w-sm flex-col gap-4 px-6 py-24">
-      <h1
-        style={{ fontFamily: "var(--font-display)", color: "var(--color-text-primary)" }}
-        className="text-2xl"
-      >
-        Admin sign in
-      </h1>
+    <main className="admin-login-shell">
+      <div className="admin-login-brand">
+        <span className="admin-login-mark">KO</span>
+        <span>Portfolio control room</span>
+      </div>
+      <div className="admin-login-card">
+        <p className="admin-kicker">Private workspace</p>
+        <h1>Welcome back.</h1>
+        <p className="admin-login-copy">Sign in to shape the work, stories, and projects behind the portfolio.</p>
 
-      <form action={authenticate} className="flex flex-col gap-4">
+        <form action={authenticate} className="admin-login-form">
         <div>
           <label
             htmlFor="email"
@@ -105,7 +107,9 @@ export default async function AdminLoginPage({
         >
           Sign in
         </button>
-      </form>
+        </form>
+      </div>
+      <p className="admin-login-footer">Fagbo Kehinde Omolola <span>·</span> Product Engineer &amp; AI Builder</p>
     </main>
   );
 }

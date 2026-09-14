@@ -10,7 +10,7 @@ export type AdminProjectRow = {
   category: string[];
   featured: boolean;
   published: boolean;
-  completedAt: string;
+  completedAt: string | null;
 };
 
 // Focus trap for the delete confirmation modal, per focus-trap-implementation
@@ -76,6 +76,8 @@ export default function ProjectList({ projects }: { projects: AdminProjectRow[] 
   const router = useRouter();
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [view, setView] = useState<"all" | "published" | "drafts">("all");
   const modalRef = useRef<HTMLDivElement>(null);
 
   useFocusTrap(modalRef, deleteTargetId !== null, () => setDeleteTargetId(null));
@@ -111,100 +113,113 @@ export default function ProjectList({ projects }: { projects: AdminProjectRow[] 
   }
 
   const deleteTarget = projects.find((p) => p.id === deleteTargetId);
+  const visibleProjects = projects.filter((project) => {
+    const matchesQuery = `${project.title} ${project.category.join(" ")}`
+      .toLowerCase()
+      .includes(query.toLowerCase());
+    const matchesView =
+      view === "all" || (view === "published" ? project.published : !project.published);
+    return matchesQuery && matchesView;
+  });
+  const publishedCount = projects.filter((project) => project.published).length;
+  const featuredCount = projects.filter((project) => project.featured).length;
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
-      <div className="flex items-center justify-between">
-        <h1
-          style={{ fontFamily: "var(--font-display)", color: "var(--color-text-primary)" }}
-          className="text-3xl"
-        >
-          Projects
-        </h1>
-        <Link
-          href="/admin/projects/new"
-          style={{
-            fontFamily: "var(--font-primary)",
-            borderRadius: "var(--radius-md)",
-            background: "var(--color-primary)",
-            color: "var(--color-on-primary)",
-          }}
-          className="px-4 py-2 text-sm font-semibold"
-        >
-          + New project
+    <main className="admin-shell">
+      <div className="admin-topbar">
+        <div>
+          <p className="admin-kicker">Kehinde Omolola / Studio</p>
+          <h1 className="admin-title">Portfolio control room</h1>
+        </div>
+        <Link href="/admin/projects/new" className="admin-primary-action">
+          <span aria-hidden="true">+</span> New project
         </Link>
       </div>
 
-      <ul className="mt-8 flex flex-col gap-3">
-        {projects.map((project) => (
+      <section className="admin-intro">
+        <div>
+          <p className="admin-eyebrow">Content library</p>
+          <h2>Projects</h2>
+          <p>Shape the work people see first. Keep the story sharp, current, and unmistakably yours.</p>
+        </div>
+        <div className="admin-stat-grid" aria-label="Project overview">
+          <div><strong>{projects.length}</strong><span>Total projects</span></div>
+          <div><strong>{publishedCount}</strong><span>Published</span></div>
+          <div><strong>{featuredCount}</strong><span>Featured</span></div>
+        </div>
+      </section>
+
+      <section className="admin-toolbar" aria-label="Project filters">
+        <label className="admin-search">
+          <span aria-hidden="true">⌕</span>
+          <span className="sr-only">Search projects</span>
+          <input
+            type="search"
+            placeholder="Search by title or category"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+        <div className="admin-segmented" role="group" aria-label="Filter projects">
+          {(["all", "published", "drafts"] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={view === option}
+              className={view === option ? "is-active" : ""}
+              onClick={() => setView(option)}
+            >
+              {option[0].toUpperCase() + option.slice(1)}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <ul className="admin-project-list">
+        {visibleProjects.map((project, index) => (
           <li
             key={project.id}
-            style={{ borderColor: "var(--color-border)", background: "var(--color-bg-secondary)" }}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-lg)] border p-4"
+            className="admin-project-card"
           >
-            <div>
-              <p
-                style={{ fontFamily: "var(--font-primary)", color: "var(--color-text-primary)" }}
-                className="font-semibold"
-              >
-                {project.title}
-              </p>
-              <p
-                style={{ fontFamily: "var(--font-primary)", color: "var(--color-text-muted)" }}
-                className="text-sm"
-              >
-                {project.category.join(", ")} · {project.completedAt}
-              </p>
+            <div className="admin-project-index">0{index + 1}</div>
+            <div className="admin-project-details">
+              <div className="admin-project-heading">
+                <p>{project.title}</p>
+                {project.featured && <span className="admin-badge featured">Featured</span>}
+              </div>
+              <p className="admin-project-meta">{project.category.join(" / ")} <span>·</span> {project.completedAt ?? "In progress"}</p>
             </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <label
-                style={{ fontFamily: "var(--font-primary)", color: "var(--color-text-secondary)" }}
-                className="flex items-center gap-2 text-sm"
-              >
+            <div className="admin-project-controls">
+              <label className="admin-toggle">
                 <input
                   type="checkbox"
                   checked={project.featured}
                   disabled={busyId === project.id}
                   onChange={(e) => toggle(project.id, "featured", e.target.checked)}
                 />
-                Featured
+                <span>Featured</span>
               </label>
-              <label
-                style={{ fontFamily: "var(--font-primary)", color: "var(--color-text-secondary)" }}
-                className="flex items-center gap-2 text-sm"
-              >
+              <label className="admin-toggle">
                 <input
                   type="checkbox"
                   checked={project.published}
                   disabled={busyId === project.id}
                   onChange={(e) => toggle(project.id, "published", e.target.checked)}
                 />
-                Published
+                <span>{project.published ? "Live" : "Draft"}</span>
               </label>
-              <Link
-                href={`/admin/projects/${project.id}`}
-                style={{ fontFamily: "var(--font-primary)", color: "var(--color-secondary)" }}
-                className="text-sm font-semibold"
-              >
-                Edit
-              </Link>
-              <button
-                type="button"
-                onClick={() => setDeleteTargetId(project.id)}
-                style={{ fontFamily: "var(--font-primary)", color: "var(--color-error)" }}
-                className="text-sm font-semibold"
-              >
-                Delete
-              </button>
+              <div className="admin-card-actions">
+                <Link href={`/admin/projects/${project.id}`}>Edit project <span aria-hidden="true">↗</span></Link>
+                <button type="button" onClick={() => setDeleteTargetId(project.id)} aria-label={`Delete ${project.title}`}>
+                  Delete
+                </button>
+              </div>
             </div>
           </li>
         ))}
 
-        {projects.length === 0 && (
-          <p style={{ fontFamily: "var(--font-primary)", color: "var(--color-text-muted)" }}>
-            No projects yet.
-          </p>
+        {visibleProjects.length === 0 && (
+          <li className="admin-empty-state">No projects match this view.</li>
         )}
       </ul>
 
@@ -273,6 +288,6 @@ export default function ProjectList({ projects }: { projects: AdminProjectRow[] 
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

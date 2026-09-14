@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   const projects = await prisma.project.findMany({
-    orderBy: [{ featured: "desc" }, { completedAt: "desc" }],
+    orderBy: [{ featured: "desc" }, { completedAt: { sort: "desc", nulls: "first" } }],
   });
 
   return (
@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
         category: p.category,
         featured: p.featured,
         published: p.published,
-        completedAt: p.completedAt.toISOString().slice(0, 10),
+        completedAt: p.completedAt ? p.completedAt.toISOString().slice(0, 10) : null,
       }))}
     />
   );

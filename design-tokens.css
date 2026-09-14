@@ -1,6 +1,7 @@
 /**
  * Kehinde Omolola Portfolio — Design Tokens
- * "Brass & Slate" — warm, mature, dark theme
+ * Stark monochrome + deep forest green accent (final palette — no further
+ * color revisions, per AGENTS.md Section 3)
  * ==========================================================================
  * This file must exist at the project root, per AGENTS.md Section 4.
  * Import it once in src/app/globals.css. Never hardcode a hex value in
@@ -10,36 +11,38 @@
 
 :root {
   /* ========================================================================
-     BACKGROUNDS — warm charcoal, not cold black or navy
+     BACKGROUNDS — near-black, stark, confident
      ======================================================================== */
-  --color-bg-primary: #1A1712;
-  --color-bg-secondary: #211D16;
-  --color-bg-tertiary: #2A251C;
-  --color-bg-elevated: #332C20;
+  --color-bg-primary: #0D0D0D;
+  --color-bg-secondary: #141414;
+  --color-bg-tertiary: #1C1C1C;
+  --color-bg-elevated: #242424;
 
   /* ========================================================================
-     PRIMARY — Brass / Gold
+     PRIMARY — deep forest green. Provly-adjacent but distinct, close to
+     the emotional resonance of Provly's own teal while staying its own.
+     The one bold accent, used sparingly and deliberately.
      ======================================================================== */
-  --color-primary: #D4AF5F;
-  --color-on-primary: #2A1F0A;
-  --color-primary-container: #4A3A1A;
-  --color-on-primary-container: #F0DEB0;
+  --color-primary: #1B5E42;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #123328;
+  --color-on-primary-container: #B8E6CC;
 
   /* ========================================================================
-     SECONDARY — Slate Blue
+     SECONDARY — neutral gray, not a second hue (keeps the one-accent discipline)
      ======================================================================== */
-  --color-secondary: #8FA9C2;
-  --color-on-secondary: #12212F;
-  --color-secondary-container: #253746;
-  --color-on-secondary-container: #D3E1EC;
+  --color-secondary: #B8B8B8;
+  --color-on-secondary: #0D0D0D;
+  --color-secondary-container: #2A2A2A;
+  --color-on-secondary-container: #E5E5E5;
 
   /* ========================================================================
-     ACCENT / TERTIARY — Burgundy
+     ACCENT/TERTIARY — deeper, muted shade within the same forest-green family
      ======================================================================== */
-  --color-accent: #B25A6E;
-  --color-on-accent: #2E0E14;
-  --color-accent-container: #4A1F29;
-  --color-on-accent-container: #EFC9D1;
+  --color-accent: #0F3D2E;
+  --color-on-accent: #FFFFFF;
+  --color-accent-container: #0A2820;
+  --color-on-accent-container: #A8D4BC;
 
   /* ========================================================================
      SUCCESS
@@ -74,27 +77,33 @@
   --color-on-info-container: #D0E4F2;
 
   /* ========================================================================
-     TEXT
-     Verified against --color-bg-primary with the WCAG contrast formula
-     (contrast-verification-procedure skill), Checkpoint 4:
-       text-primary / bg-primary   -> 15.72:1 (passes 4.5:1)
-       text-secondary / bg-primary -> 9.90:1  (passes 4.5:1)
+     TEXT — stark white for high contrast, matching the confident tone
      ======================================================================== */
-  --color-text-primary: #F4F0E8;
-  --color-text-secondary: #C9C0AE;
-  --color-text-muted: #8A8272;
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #B0B0B0;
+  --color-text-muted: #757575;
+  /* Dedicated hero-name color, distinct from --color-text-primary on
+     purpose — a specific off-white (not pure white, not green) requested
+     for the hero name specifically, not a change to body text generally. */
+  --color-hero-name: #EDEBE6;
 
   /* ========================================================================
      BORDERS
+     Changed from #242424 (WCAG 1.4.11 Non-text Contrast failure — measured
+     1.05-1.25:1 against the backgrounds it's actually used on, e.g. the
+     Contact form's input fields, essentially invisible as distinct shapes)
+     to #686868 (3.31-3.49:1 against those same backgrounds, clearing the
+     3:1 minimum with margin). Real accessibility fix, not a brand-palette
+     change — border-accent (the green) is unchanged.
      ======================================================================== */
-  --color-border: #332C20;
-  --color-border-accent: #D4AF5F;
+  --color-border: #686868;
+  --color-border-accent: #1B5E42;
 
   /* ========================================================================
      TYPOGRAPHY — font families
      ======================================================================== */
-  --font-primary: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Fraunces', Georgia, serif; /* hero name + section titles only */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Space Grotesk', -apple-system, sans-serif; /* hero name + section titles only */
 
   /* ========================================================================
      TYPOGRAPHY — size scale
@@ -133,10 +142,11 @@
 }
 
 /* ==========================================================================
-   UTILITY CLASS — brass gradient hero text
+   UTILITY CLASS — forest green gradient hero text
+   Class name unchanged - kept generic from the start for exactly this reason.
    ========================================================================== */
-.text-gradient-brass {
-  background: linear-gradient(135deg, #D4AF5F, #F0DEB0);
+.text-gradient-accent {
+  background: linear-gradient(135deg, #1B5E42, #3D9970);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

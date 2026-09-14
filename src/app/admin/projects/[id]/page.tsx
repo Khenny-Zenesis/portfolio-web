@@ -39,7 +39,9 @@ export default async function EditProjectPage({
         githubUrl: project.githubUrl,
         featured: project.featured,
         published: project.published,
-        completedAt: project.completedAt.toISOString().slice(0, 10),
+        completedAt: project.completedAt
+          ? project.completedAt.toISOString().slice(0, 10)
+          : "",
         screenshots,
       }}
     />

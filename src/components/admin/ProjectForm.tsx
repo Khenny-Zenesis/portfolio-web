@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { PROJECT_CATEGORIES } from "@/lib/validations/project";
 
 export type ProjectFormValues = {
@@ -117,7 +118,9 @@ export default function ProjectForm({
       screenshots: screenshots.map((s) => s.key),
       featured,
       published,
-      completedAt,
+      // Empty means genuinely in progress (e.g. Provly's MVP) — sent as
+      // null, not an unparseable empty string.
+      completedAt: completedAt || null,
     };
 
     setSubmitting(true);
@@ -151,8 +154,23 @@ export default function ProjectForm({
   const labelStyle = { fontFamily: "var(--font-primary)", color: "var(--color-text-secondary)" };
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto flex max-w-2xl flex-col gap-4 px-6 py-10">
-      <div>
+    <form onSubmit={handleSubmit} className="admin-form">
+      <div className="admin-form-header">
+        <div>
+          <Link href="/admin/dashboard" className="admin-back-link">← Back to projects</Link>
+          <p className="admin-kicker">Portfolio control room / Editor</p>
+          <h1>{mode === "create" ? "Add a new project" : "Edit project"}</h1>
+          <p>Make the work easy to understand, then decide exactly how it appears in the public portfolio.</p>
+        </div>
+        <span className="admin-form-status">{mode === "create" ? "Drafting" : "Editing"}</span>
+      </div>
+
+      <section className="admin-form-section">
+        <div className="admin-form-section-heading">
+          <p className="admin-eyebrow">01 / Story</p>
+          <h2>Project essentials</h2>
+        </div>
+        <div className="admin-form-field">
         <label htmlFor="title" style={labelStyle} className="text-sm">
           Title
         </label>
@@ -164,9 +182,9 @@ export default function ProjectForm({
           style={inputStyle}
           className="mt-1 w-full border px-3 py-2"
         />
-      </div>
+        </div>
 
-      <div>
+        <div className="admin-form-field">
         <label htmlFor="description" style={labelStyle} className="text-sm">
           Short description
         </label>
@@ -179,9 +197,9 @@ export default function ProjectForm({
           style={inputStyle}
           className="mt-1 w-full border px-3 py-2"
         />
-      </div>
+        </div>
 
-      <div>
+        <div className="admin-form-field">
         <label htmlFor="techStack" style={labelStyle} className="text-sm">
           Tech stack (comma-separated)
         </label>
@@ -194,9 +212,9 @@ export default function ProjectForm({
           style={inputStyle}
           className="mt-1 w-full border px-3 py-2"
         />
-      </div>
+        </div>
 
-      <fieldset>
+      <fieldset className="admin-form-field">
         <legend style={labelStyle} className="text-sm">
           Category (select all that apply)
         </legend>
@@ -217,8 +235,10 @@ export default function ProjectForm({
           ))}
         </div>
       </fieldset>
+      </section>
 
-      <div>
+      <section className="admin-form-section admin-form-grid">
+      <div className="admin-form-field">
         <label htmlFor="liveUrl" style={labelStyle} className="text-sm">
           Live URL (optional)
         </label>
@@ -232,7 +252,7 @@ export default function ProjectForm({
         />
       </div>
 
-      <div>
+      <div className="admin-form-field">
         <label htmlFor="githubUrl" style={labelStyle} className="text-sm">
           GitHub URL (optional)
         </label>
@@ -246,22 +266,23 @@ export default function ProjectForm({
         />
       </div>
 
-      <div>
+      <div className="admin-form-field">
         <label htmlFor="completedAt" style={labelStyle} className="text-sm">
-          Completed on
+          Completed on (leave blank if still in progress)
         </label>
         <input
           id="completedAt"
           type="date"
           value={completedAt}
           onChange={(e) => setCompletedAt(e.target.value)}
-          required
           style={inputStyle}
           className="mt-1 w-full border px-3 py-2"
         />
       </div>
+      </section>
 
-      <div>
+      <section className="admin-form-section admin-media-section">
+      <div className="admin-form-field">
         <span style={labelStyle} className="text-sm">
           Screenshots ({screenshots.length}/{MAX_SCREENSHOTS}) — JPEG, PNG, or WebP, 2MB max each
         </span>
@@ -296,13 +317,15 @@ export default function ProjectForm({
             multiple
             onChange={handleFileSelect}
             disabled={uploading}
-            className="mt-3 text-sm"
+            className="admin-file-input mt-3 text-sm"
             style={{ fontFamily: "var(--font-primary)", color: "var(--color-text-secondary)" }}
           />
         )}
       </div>
+      </section>
 
-      <div className="flex gap-6">
+      <section className="admin-form-section admin-publish-section">
+      <div className="admin-publish-options">
         <label
           style={{ fontFamily: "var(--font-primary)", color: "var(--color-text-primary)" }}
           className="flex items-center gap-2 text-sm"
@@ -318,6 +341,7 @@ export default function ProjectForm({
           Published (visible on public site)
         </label>
       </div>
+      </section>
 
       {error && (
         <p role="alert" style={{ color: "var(--color-error)", fontFamily: "var(--font-primary)" }}>
@@ -335,7 +359,7 @@ export default function ProjectForm({
           color: "var(--color-on-primary)",
           opacity: submitting || uploading ? 0.7 : 1,
         }}
-        className="mt-2 px-6 py-3 font-semibold"
+        className="admin-save-button mt-2 px-6 py-3 font-semibold"
       >
         {submitting ? "Saving…" : mode === "create" ? "Create project" : "Save changes"}
       </button>

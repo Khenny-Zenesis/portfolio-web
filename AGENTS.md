@@ -56,79 +56,77 @@ Infrastructure
 
 SECTION 3 — DESIGN SYSTEM RULES
 
-Theme: dark theme throughout, no light mode toggle. Direction: "Brass & Slate" — warm, mature, deliberately distinct from both Provly's teal/amber brand and the generic navy/cyan look most developer portfolios default to.
+Theme: dark theme throughout, no light mode toggle. Direction: stark near-black background with a single deep forest-green accent — Provly-adjacent (Kehinde's own strongest, most-loved palette) but distinct, arrived at after design iteration. **This is the final palette — no further color revisions.**
 
 Colour Variables — Always Use These
 ```
-/* Backgrounds — warm charcoal, not cold black or navy */
---color-bg-primary: #1A1712
---color-bg-secondary: #211D16
---color-bg-tertiary: #2A251C
---color-bg-elevated: #332C20
+/* Backgrounds — near-black, stark */
+--color-bg-primary: #0D0D0D
+--color-bg-secondary: #141414
+--color-bg-tertiary: #1C1C1C
+--color-bg-elevated: #242424
 
-/* Primary — Brass/Gold */
---color-primary: #D4AF5F
---color-on-primary: #2A1F0A
---color-primary-container: #4A3A1A
---color-on-primary-container: #F0DEB0
+/* Primary — deep forest green, Provly-adjacent, the one bold accent */
+--color-primary: #1B5E42
+--color-on-primary: #FFFFFF
+--color-primary-container: #123328
+--color-on-primary-container: #B8E6CC
 
-/* Secondary — Slate Blue */
---color-secondary: #8FA9C2
---color-on-secondary: #12212F
---color-secondary-container: #253746
---color-on-secondary-container: #D3E1EC
+/* Secondary — neutral gray, not a second hue (keeps the one-accent discipline) */
+--color-secondary: #B8B8B8
+--color-on-secondary: #0D0D0D
+--color-secondary-container: #2A2A2A
+--color-on-secondary-container: #E5E5E5
 
-/* Accent/Tertiary — Burgundy */
---color-accent: #B25A6E
---color-on-accent: #2E0E14
---color-accent-container: #4A1F29
---color-on-accent-container: #EFC9D1
+/* Accent/Tertiary — deeper, muted shade within the same forest-green family */
+--color-accent: #0F3D2E
+--color-on-accent: #FFFFFF
+--color-accent-container: #0A2820
+--color-on-accent-container: #A8D4BC
 
-/* Success */
+/* Semantic — Success, Warning, Error, Info: UNCHANGED throughout every revision */
 --color-success: #5FB98A
 --color-on-success: #0B2A1A
 --color-success-container: #1E4430
 --color-on-success-container: #C3EBD5
 
-/* Warning — distinct hue from Primary on purpose */
 --color-warning: #E5B54F
 --color-on-warning: #000000
 --color-warning-container: #4A3712
 --color-on-warning-container: #F5DFA0
 
-/* Error */
 --color-error: #D9686A
 --color-on-error: #2E0808
 --color-error-container: #4A1616
 --color-on-error-container: #F5C6C7
 
-/* Info */
 --color-info: #7FADD6
 --color-on-info: #0A1F30
 --color-info-container: #1F3A50
 --color-on-info-container: #D0E4F2
 
 /* Text */
---color-text-primary: #F4F0E8
---color-text-secondary: #C9C0AE
---color-text-muted: #8A8272
+--color-text-primary: #F5F5F5
+--color-text-secondary: #B0B0B0
+--color-text-muted: #757575
 
 /* Borders */
---color-border: #332C20
---color-border-accent: #D4AF5F
+--color-border: #242424
+--color-border-accent: #1B5E42
 ```
 
-⛔ RULE: Verify every text/background pairing above with a real contrast checker before shipping — these were reasoned carefully, but not a substitute for the actual check, same discipline used on every other project.
+⛔ RULE: Warning stays amber, Primary is forest green — clearly distinct hues, no overlap.
 
-Typography
+Typography Variables
 ```
---font-primary: "IBM Plex Sans", -apple-system, sans-serif
---font-display: "Fraunces", Georgia, serif  /* hero name + section titles only */
+--font-primary: "Inter", -apple-system, sans-serif
+--font-display: "Space Grotesk", -apple-system, sans-serif  /* hero name and section titles only — matches Provly's own typography voice */
 ```
 
+Special Utility Class
 ```css
-.text-gradient-brass {
-  background: linear-gradient(135deg, #D4AF5F, #F0DEB0);
+.text-gradient-accent {
+  background: linear-gradient(135deg, #1B5E42, #3D9970);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -142,7 +140,7 @@ Spacing and Radius
 Photography and Imagery — this is a real requirement, not decoration
 ▪ Use a real photo of Kehinde in the hero section — not a small circular avatar, a genuinely prominent portrait.
 ▪ Never use an AI-generated image of Kehinde herself. Authenticity matters more than polish for a personal, trust-building asset.
-▪ Apply a subtle duotone treatment to the hero photo using the brass/burgundy palette (CSS filter or a prepared image variant) so the photo feels integrated into the brand system, not a plain stock-feeling headshot dropped on top.
+▪ The hero photo shows in natural, true color — no duotone tint over the face. A heavy tint was tried and rejected for obscuring the photo and looking unprofessional. Brand color is expressed through a thin accent-colored border/frame around the image instead.
 ▪ Project screenshots should look like real product screenshots, not staged mockups — actual UI, actual data where possible.
 
 SECTION 4 — FOLDER STRUCTURE (DO NOT DEVIATE)
@@ -244,7 +242,7 @@ Personal Information
 ▪ Startup: useprovly.com
 
 Professional Bio
-I am a Nigerian product engineer and AI builder who went from founding a salon business to building AI-powered startup products in months. I completed a Product Design and Engineering Bootcamp specializing in context engineering, Next.js, TypeScript, and AI-assisted development, and I'm currently building my product management foundation through a scholarship-funded bootcamp. I'm the founder of Provly — an AI field-reporting tool for independent contractors in Africa — and I build in public, documenting every step. I hold a BSc in Business Administration and was selected for the Women in Cloud FoundHerWorld global founder spotlight. Available immediately for remote roles in product engineering, AI product development, and product management.
+I am a Nigerian product engineer and AI builder who went from founding a salon business to building AI-powered startup products in months. I completed a Product Design and Engineering Bootcamp specializing in context engineering, Next.js, TypeScript, and AI-assisted development, and I'm currently building my product management foundation through a scholarship-funded bootcamp. I'm the founder of Provly — an AI field-reporting tool for independent contractors in Africa — and I build in public, documenting every step. I hold a BSc in Business Administration. Available immediately for remote roles in product engineering, AI product development, and product management.
 
 Projects
 1. **Provly** (Featured) — AI-powered field reporting for independent contractors in Africa. Category: AI Tool + Startup.

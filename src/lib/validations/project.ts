@@ -30,7 +30,9 @@ export const projectSchema = z.object({
   screenshots: z.array(z.string()).max(5, "Maximum 5 screenshots per project"),
   featured: z.boolean(),
   published: z.boolean(),
-  completedAt: z.coerce.date(),
+  // Nullable: an in-progress project (e.g. Provly's MVP, this portfolio
+  // itself) genuinely has no completion date yet.
+  completedAt: z.coerce.date().nullable(),
 });
 
 export type ProjectInput = z.infer<typeof projectSchema>;

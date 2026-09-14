@@ -1,55 +1,10 @@
-import { head } from "@vercel/blob";
 import { prisma } from "@/lib/db";
+import { getProjectLinks } from "@/lib/get-projects";
+import Navbar, { NAVBAR_HEIGHT } from "@/components/Navbar";
 import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
-import Projects, { type ProjectCardData } from "@/components/sections/Projects";
 import Skills, { type SkillData } from "@/components/sections/Skills";
 import Education from "@/components/sections/Education";
 import Contact from "@/components/sections/Contact";
-
-// Only the Blob storage key is ever persisted (uploads-and-storage.md) — the
-// renderable URL is resolved here, at read time, via head(). head() and
-// del() both accept a bare pathname (verified against @vercel/blob's own
-// type definitions), so storing the key alone is sufficient; no separate
-// "public base URL" needs to be reconstructed or guessed.
-async function resolveScreenshotUrl(key: string): Promise<string | null> {
-  try {
-    const blob = await head(key);
-    return blob.url;
-  } catch (error) {
-    console.error("[page] failed to resolve screenshot", key, error);
-    return null;
-  }
-}
-
-async function getProjects(): Promise<ProjectCardData[]> {
-  const projects = await prisma.project.findMany({
-    where: { published: true },
-    // Exact query PRD 5A item 5 / database-schema.md's index describes:
-    // featured first, then most recently completed.
-    orderBy: [{ featured: "desc" }, { completedAt: "desc" }],
-  });
-
-  return Promise.all(
-    projects.map(async (project) => ({
-      id: project.id,
-      title: project.title,
-      description: project.description,
-      techStack: project.techStack,
-      category: project.category,
-      liveUrl: project.liveUrl,
-      githubUrl: project.githubUrl,
-      featured: project.featured,
-      completedAt: project.completedAt.toISOString(),
-      screenshots: await Promise.all(
-        project.screenshots.map(async (key) => ({
-          key,
-          url: await resolveScreenshotUrl(key),
-        }))
-      ),
-    }))
-  );
-}
 
 async function getSkills(): Promise<SkillData[]> {
   const skills = await prisma.skill.findMany({ orderBy: { category: "asc" } });
@@ -70,16 +25,36 @@ async function getSkills(): Promise<SkillData[]> {
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [projects, skills] = await Promise.all([getProjects(), getSkills()]);
+  const [skills, projectLinks] = await Promise.all([getSkills(), getProjectLinks()]);
 
   return (
-    <main>
-      <Hero />
-      <About />
-      <Projects projects={projects} />
-      <Skills skills={skills} />
-      <Education />
-      <Contact />
-    </main>
+    <>
+      <Navbar />
+      {/* Single max-width container for the whole page, per the reported
+          bug: no container existed anywhere, so content ran edge-to-edge.
+          Each section only handles its own vertical rhythm
+          (paddingTop/Bottom); horizontal max-width/centering/side-padding
+          lives here, once. paddingTop offsets the fixed Navbar so it never
+          covers Hero's content. */}
+      <main
+        style={{
+          maxWidth: "1200px",
+          marginLeft: "auto",
+          marginRight: "auto",
+          paddingLeft: "var(--space-6)",
+          paddingRight: "var(--space-6)",
+          paddingTop: NAVBAR_HEIGHT,
+        }}
+      >
+        <Hero />
+        {/* About and Projects both live at their own routes now (/about,
+            /projects) — per explicit request, reached only by clicking
+            their Navbar links, never stumbled into by scrolling the
+            homepage. */}
+        <Skills skills={skills} projectLinks={projectLinks} />
+        <Education />
+        <Contact />
+      </main>
+    </>
   );
 }

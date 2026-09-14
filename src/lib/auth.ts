@@ -17,6 +17,9 @@ const credentialsSchema = z.object({
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  // Auth.js v5 prefers AUTH_SECRET; keep NEXTAUTH_SECRET supported because
+  // it is the project variable documented in .env and the deployment setup.
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   // Credentials provider requires JWT sessions — Auth.js does not support
   // database-strategy sessions for Credentials-based sign-in.
   session: { strategy: "jwt" },

@@ -1,3 +1,4 @@
+@import "tailwindcss";
 @import '../../design-tokens.css';
 
 :root {
@@ -6,6 +7,10 @@
 
 html {
   height: 100%;
+  /* Smooth-scrolls the View Work / Contact Me anchor links (plain same-page
+     #hash navigation — not a Next.js route transition, so none of Next 16's
+     scroll-behavior-override-during-navigation nuance applies here). */
+  scroll-behavior: smooth;
 }
 
 html,
@@ -16,6 +21,8 @@ body {
 
 body {
   min-height: 100%;
+  width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   background: var(--color-bg-primary);
@@ -27,6 +34,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+main {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -36,4 +50,378 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* ==========================================================================
+   MOTION — scroll-reveal (paired with src/components/Reveal.tsx) and hover
+   micro-interactions. Kept subtle and professional per the brief: small
+   offsets, moderate duration, no bounce/overshoot easing.
+   ========================================================================== */
+.reveal {
+  opacity: 0;
+  min-width: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: var(--color-border-accent);
+}
+
+/* Hero-specific: same lift as .hover-lift, plus a slight scale — kept as
+   its own class rather than stacking onto .hover-lift, since two classes
+   both setting `transform` on the same element don't merge, only one wins.
+   Used only by the two Hero CTAs (View Work / Contact Me), not the global
+   hover-lift used elsewhere on the page. */
+.hero-cta {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.hero-cta:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-color: var(--color-border-accent);
+}
+
+/* About photo: a premium resting shadow always present, and on hover a
+   slight lift plus a soft dark-green glow/border using --color-accent (the
+   deeper, more muted shade in the forest-green family — a better match for
+   "dark green" than --color-primary, which reads brighter/more saturated).
+   Deliberately not a new "sage green" hex value, which would've broken
+   AGENTS.md's "final palette, no further color revisions" rule.
+   color-mix(), not a hardcoded rgba, keeps the shadow's base tone
+   token-driven too. Larger blur + lower opacity than the first version,
+   for a softer glow rather than a hard-edged shadow. */
+.about-photo {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--color-bg-primary) 60%, transparent);
+}
+.about-photo:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 64px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  border-color: var(--color-accent);
+}
+
+/* Subtle dark vignette on the bottom and left edges (per explicit request:
+   "left edge or bottom") so the photo's own edge doesn't read as a hard-cut
+   rectangle against the page's near-black background — it visually settles
+   into it instead. Two overlapping linear-gradients on a ::after (not the
+   real element's own background, which is unset here) so this needs no
+   JSX change; clipped to the photo's rounded corners by the parent's
+   existing overflow-hidden. color-mix keeps the vignette's tone
+   token-driven rather than a new hardcoded rgba/hex. */
+.about-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, color-mix(in srgb, var(--color-bg-primary) 70%, transparent), transparent 40%),
+    linear-gradient(to right, color-mix(in srgb, var(--color-bg-primary) 45%, transparent), transparent 30%);
+}
+
+/* Hero entrance/ambient animations — plain CSS @keyframes, no library,
+   consistent with the scroll-reveal approach above. */
+@keyframes hero-name-in {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.hero-name-animate {
+  animation: hero-name-in 0.8s ease-out both;
+}
+
+@media (max-width: 360px) {
+  .hero-name {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 240px) {
+  .hero-name {
+    font-size: 32px;
+  }
+}
+
+/* Scroll-down cue at the bottom of the Hero — a slow, small vertical drift,
+   not a sharp bounce, matching the "subtle, professional" motion brief used
+   everywhere else on the site. */
+@keyframes scroll-chevron-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+.scroll-down-chevron {
+  animation: scroll-chevron-drift 2s ease-in-out infinite;
+  transition: color 0.2s ease;
+}
+.scroll-down-chevron:hover {
+  color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   PREMIUM CARDS — the bordered-card-with-corner-glow language introduced for
+   Skills, generalized so Education and Contact share the exact same visual
+   vocabulary instead of three near-identical variants. Hover states use
+   color/background only (no transform), so nothing here needs a
+   prefers-reduced-motion override beyond what's already safe by default.
+   ========================================================================== */
+.premium-card {
+  transition: border-color 0.2s ease;
+}
+.premium-card:hover {
+  border-color: color-mix(in srgb, var(--color-info) 45%, var(--color-border));
+}
+
+.skill-chip {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.skill-chip:hover {
+  background: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+}
+
+/* Extremely faint radial glow — a soft light source, not a neon accent.
+   Sits behind a section heading (Skills, Education, Contact) via a ::before
+   pseudo-element. Each premium-card's own corner glow is a second
+   background-image layered under its solid background-color instead
+   (valid CSS multi-background shorthand) — set inline per-card since it
+   needs to sit under a per-card background-color, not as a shared class. */
+.section-title-glow {
+  position: relative;
+}
+.section-title-glow::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -40px;
+  left: -40px;
+  width: 280px;
+  height: 200px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-info) 10%, transparent), transparent 70%);
+  filter: blur(24px);
+  pointer-events: none;
+}
+
+/* Contact — link rows and form fields get the same quiet hover/focus
+   language as the rest of the site (color/background/border transitions
+   only, per prefers-reduced-motion note above). */
+.contact-link {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.contact-link:hover {
+  background: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
+}
+
+.contact-field {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+/* Replaces the browser default outline rather than removing it outright
+   (WCAG 2.4.7 Focus Visible) — a brighter border plus a soft ring is more
+   visible against this dark theme than the default outline would be. */
+.contact-field:focus-visible {
+  outline: none;
+  border-color: var(--color-border-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-accent) 35%, transparent);
+}
+
+/* Admin workspace: an editorial control surface for managing the portfolio. */
+.admin-shell,
+.admin-form {
+  width: min(1120px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 40px 0 72px;
+}
+.admin-topbar,
+.admin-form-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 28px;
+}
+.admin-kicker,
+.admin-eyebrow {
+  color: var(--color-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.admin-title,
+.admin-form-header h1 {
+  margin-top: 8px;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.admin-primary-action,
+.admin-save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 700;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.admin-primary-action { padding: 12px 16px; font-size: 0.85rem; }
+.admin-primary-action:hover,
+.admin-save-button:hover { background: var(--color-accent); border-color: var(--color-accent); transform: translateY(-2px); }
+.admin-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 56px 0 36px;
+}
+.admin-intro h2 { margin-top: 6px; color: var(--color-text-primary); font-family: var(--font-display); font-size: 2rem; font-weight: 500; }
+.admin-intro p:not(.admin-eyebrow) { max-width: 470px; margin-top: 10px; color: var(--color-text-secondary); font-size: 0.95rem; }
+.admin-stat-grid { display: flex; border-top: 1px solid var(--color-border); }
+.admin-stat-grid div { min-width: 112px; padding: 12px 18px 0 0; }
+.admin-stat-grid strong { display: block; color: var(--color-text-primary); font-family: var(--font-display); font-size: 1.8rem; font-weight: 500; }
+.admin-stat-grid span { color: var(--color-text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.admin-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; }
+.admin-search { display: flex; align-items: center; gap: 10px; width: min(360px, 100%); color: var(--color-text-muted); }
+.admin-search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--color-text-primary); font: inherit; font-size: 0.9rem; }
+.admin-search input::placeholder { color: var(--color-text-muted); }
+.admin-segmented { display: flex; gap: 4px; }
+.admin-segmented button { border: 1px solid transparent; border-radius: var(--radius-full); background: transparent; color: var(--color-text-muted); cursor: pointer; padding: 7px 12px; font-size: 0.75rem; }
+.admin-segmented button:hover,
+.admin-segmented button.is-active { border-color: var(--color-border); background: var(--color-bg-tertiary); color: var(--color-text-primary); }
+.admin-project-list { list-style: none; padding: 20px 0 0; }
+.admin-project-card { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 18px; border-bottom: 1px solid var(--color-border); padding: 22px 0; }
+.admin-project-card:first-child { border-top: 1px solid var(--color-border); }
+.admin-project-index { color: var(--color-text-muted); font-family: var(--font-display); font-size: 0.9rem; }
+.admin-project-heading { display: flex; align-items: center; gap: 10px; }
+.admin-project-heading p { color: var(--color-text-primary); font-family: var(--font-display); font-size: 1.25rem; }
+.admin-project-meta { margin-top: 6px; color: var(--color-text-muted); font-size: 0.75rem; }
+.admin-project-meta span { padding: 0 6px; color: var(--color-primary); }
+.admin-badge { border-radius: var(--radius-full); padding: 4px 8px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.admin-badge.featured { background: var(--color-primary-container); color: var(--color-on-primary-container); }
+.admin-project-controls { display: flex; align-items: center; gap: 18px; }
+.admin-toggle { display: flex; align-items: center; gap: 7px; color: var(--color-text-secondary); font-size: 0.75rem; cursor: pointer; }
+.admin-toggle input { accent-color: var(--color-primary); }
+.admin-card-actions { display: flex; align-items: center; gap: 14px; border-left: 1px solid var(--color-border); padding-left: 18px; }
+.admin-card-actions a { color: var(--color-text-primary); font-size: 0.8rem; font-weight: 700; }
+.admin-card-actions a:hover { color: var(--color-on-primary-container); }
+.admin-card-actions button { border: 0; background: transparent; color: var(--color-error); cursor: pointer; font: inherit; font-size: 0.75rem; }
+.admin-empty-state { border: 1px dashed var(--color-border); padding: 48px; color: var(--color-text-muted); text-align: center; }
+.admin-form-header p:not(.admin-kicker) { max-width: 520px; margin-top: 14px; color: var(--color-text-secondary); }
+.admin-back-link { display: inline-block; margin-bottom: 24px; color: var(--color-text-muted); font-size: 0.8rem; }
+.admin-back-link:hover { color: var(--color-text-primary); }
+.admin-form-status { border: 1px solid var(--color-border); border-radius: var(--radius-full); color: var(--color-text-secondary); padding: 7px 11px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.admin-form-section { border-bottom: 1px solid var(--color-border); padding: 34px 0; }
+.admin-form-section-heading { margin-bottom: 24px; }
+.admin-form-section-heading h2 { margin-top: 6px; color: var(--color-text-primary); font-family: var(--font-display); font-size: 1.4rem; font-weight: 500; }
+.admin-form-field { margin-top: 18px; }
+.admin-form-field:first-child { margin-top: 0; }
+.admin-form-field input:not([type="checkbox"]),
+.admin-form-field textarea,
+.admin-form-field select { min-height: 46px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.admin-form-field input:not([type="checkbox"]):focus,
+.admin-form-field textarea:focus { outline: none; border-color: var(--color-border-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-accent) 28%, transparent); }
+.admin-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+.admin-form-grid .admin-form-field { margin-top: 0; }
+.admin-form-grid .admin-form-field:last-child { grid-column: 1 / -1; margin-top: 18px; }
+.admin-media-section > .admin-form-field > span { display: block; color: var(--color-text-secondary); font-size: 0.85rem; }
+.admin-file-input { width: 100%; border: 1px dashed var(--color-border); background: var(--color-bg-secondary); padding: 14px; }
+.admin-publish-section { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.admin-publish-options { display: flex; gap: 24px; }
+.admin-publish-options label { color: var(--color-text-primary) !important; }
+.admin-save-button { width: 100%; min-height: 50px; border: 0; }
+.admin-shell button:focus-visible,
+.admin-shell a:focus-visible,
+.admin-form button:focus-visible,
+.admin-form a:focus-visible,
+.admin-form input:focus-visible { outline: 2px solid var(--color-on-primary-container); outline-offset: 3px; }
+.admin-login-shell { display: flex; min-height: 100vh; width: min(100% - 48px, 520px); margin: 0 auto; flex-direction: column; justify-content: center; padding: 40px 0; }
+.admin-login-brand { display: flex; align-items: center; gap: 10px; color: var(--color-text-muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.admin-login-mark { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border: 1px solid var(--color-primary); color: var(--color-on-primary-container); font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0; }
+.admin-login-card { margin-top: 28px; border: 1px solid var(--color-border); background: linear-gradient(145deg, var(--color-bg-secondary), var(--color-bg-primary)); padding: clamp(28px, 7vw, 52px); }
+.admin-login-card h1 { margin-top: 8px; color: var(--color-text-primary); font-family: var(--font-display); font-size: clamp(2.4rem, 7vw, 4rem); font-weight: 500; letter-spacing: -0.04em; line-height: 0.95; }
+.admin-login-copy { max-width: 340px; margin-top: 16px; color: var(--color-text-secondary); font-size: 0.9rem; }
+.admin-login-form { display: flex; flex-direction: column; gap: 18px; margin-top: 32px; }
+.admin-login-form input { min-height: 46px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.admin-login-form input:focus { outline: none; border-color: var(--color-border-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-accent) 28%, transparent); }
+.admin-login-form button { min-height: 48px; margin-top: 6px; border: 0; border-radius: var(--radius-md); background: var(--color-primary); color: var(--color-on-primary); cursor: pointer; font-weight: 700; transition: background 0.2s ease, transform 0.2s ease; }
+.admin-login-form button:hover { background: var(--color-accent); transform: translateY(-2px); }
+.admin-login-form button:focus-visible { outline: 2px solid var(--color-on-primary-container); outline-offset: 3px; }
+.admin-login-footer { margin-top: 18px; color: var(--color-text-muted); font-size: 0.72rem; text-align: center; }
+.admin-login-footer span { padding: 0 5px; color: var(--color-primary); }
+@media (max-width: 720px) {
+  .admin-shell, .admin-form { width: min(100% - 32px, 560px); padding-top: 24px; }
+  .admin-topbar, .admin-form-header, .admin-intro, .admin-toolbar { align-items: stretch; flex-direction: column; }
+  .admin-primary-action { align-self: flex-start; }
+  .admin-intro { padding: 36px 0 24px; }
+  .admin-stat-grid { width: 100%; }
+  .admin-stat-grid div { flex: 1; min-width: 0; }
+  .admin-project-card { grid-template-columns: 30px minmax(0, 1fr); gap: 12px; }
+  .admin-project-controls { grid-column: 2; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .admin-card-actions { width: 100%; border-left: 0; padding-left: 0; }
+  .admin-form-grid { display: block; }
+  .admin-form-grid .admin-form-field, .admin-form-grid .admin-form-field:last-child { margin-top: 18px; }
+  .admin-form-grid .admin-form-field:first-child { margin-top: 0; }
+  .admin-publish-section { align-items: stretch; flex-direction: column; }
+  .admin-publish-options { flex-direction: column; gap: 12px; }
+}
+
+/* WCAG 2.1 AA: prefers-reduced-motion disables all motion above. Checked
+   again here even though Reveal.tsx also checks it in JS, so content still
+   renders correctly with JS disabled or before hydration completes. The
+   soft photo glow isn't listed — it's a static gradient, never animated. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .hover-lift,
+  .hero-cta,
+  .about-photo {
+    transition: border-color 0.2s ease;
+  }
+  .hover-lift:hover,
+  .hero-cta:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .about-photo:hover {
+    transform: none;
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--color-bg-primary) 60%, transparent);
+  }
+  .hero-name-animate {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .scroll-down-chevron {
+    animation: none;
+  }
 }
