@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
-// Protect admin pages and admin API routes with the shared NextAuth session.
+// Next.js discovers this proxy beside the src/app directory.
+// It protects both page routes and mutating admin API routes.
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoginPage = pathname === "/admin/login";
