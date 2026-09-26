@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Reveal from "@/components/Reveal";
 import ExternalLinkIcon from "@/components/icons/ExternalLinkIcon";
+
+const EMAIL = "khennyomolola@gmail.com";
 
 // PRD 5A items 9-10. Real links from AGENTS.md Section 8. Submits to
 // /api/contact (Checkpoint 5, Open Question 3: persisted + Resend email).
@@ -16,7 +18,7 @@ const SOURCE_OPTIONS = [
 ] as const;
 
 const LINKS = [
-  { label: "Email", href: "mailto:khennyomolola@gmail.com" },
+  { label: "Email", href: `mailto:${EMAIL}` },
   { label: "LinkedIn", href: "https://linkedin.com/in/kehinde-omolola-fagbo" },
   { label: "X", href: "https://x.com/zenesis1520" },
   { label: "Medium", href: "https://medium.com/@khennyomolola" },
@@ -43,6 +45,36 @@ const labelStyle = { fontFamily: "var(--font-primary)", color: "var(--color-text
 export default function Contact() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // "Copy Email" button state. "error" (not just success) matters here —
+  // navigator.clipboard.writeText can genuinely fail (insecure context,
+  // permissions denied), and silently showing "Copied!" when it didn't
+  // work would be a dishonest error state (AGENTS.md build rule 10).
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clears any pending "revert to idle" timer if the component unmounts
+  // mid-countdown, so it never fires a setState after unmount.
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
+  async function handleCopyEmail() {
+    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("error");
+    }
+    // The "brief message that fades after ~2 seconds" — CSS
+    // (.copy-confirmation in globals.css) handles the actual fade
+    // transition; this just reverts the state that drives it, which is
+    // what triggers the fade-out via the opacity transition.
+    copyTimeoutRef.current = setTimeout(() => setCopyStatus("idle"), 2000);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -116,7 +148,7 @@ export default function Contact() {
           </p>
           <ul style={{ marginTop: "var(--space-4)", gap: "var(--space-1)" }} className="flex flex-col">
             {LINKS.map((link) => (
-              <li key={link.label}>
+              <li key={link.label} style={{ gap: "var(--space-2)" }} className="flex items-center">
                 <a
                   href={link.href}
                   target="_blank"
@@ -133,6 +165,46 @@ export default function Contact() {
                   {link.label}
                   <ExternalLinkIcon size={13} opacity={0.5} />
                 </a>
+
+                {/* Email-only: a copy-to-clipboard shortcut alongside the
+                    mailto: link, not a replacement for it. */}
+                {link.label === "Email" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleCopyEmail}
+                      aria-label="Copy email address to clipboard"
+                      style={{
+                        fontFamily: "var(--font-primary)",
+                        color: "var(--color-text-muted)",
+                        borderRadius: "var(--radius-md)",
+                        padding: "var(--space-1) var(--space-2)",
+                      }}
+                      className="copy-email-btn text-xs font-semibold"
+                    >
+                      Copy
+                    </button>
+                    {/* Always mounted (not conditionally rendered) so a
+                        screen reader's live region is established up front
+                        — aria-live regions are unreliable if the element
+                        itself only appears at the same moment as the
+                        content update. Visibility is purely the CSS
+                        opacity transition in globals.css. */}
+                    <span
+                      role="status"
+                      aria-live="polite"
+                      style={{
+                        fontFamily: "var(--font-primary)",
+                        color: copyStatus === "error" ? "var(--color-error)" : "var(--color-success)",
+                      }}
+                      className={`copy-confirmation text-xs font-semibold${
+                        copyStatus !== "idle" ? " copy-confirmation-visible" : ""
+                      }`}
+                    >
+                      {copyStatus === "copied" ? "Copied!" : copyStatus === "error" ? "Couldn't copy" : ""}
+                    </span>
+                  </>
+                )}
               </li>
             ))}
           </ul>
