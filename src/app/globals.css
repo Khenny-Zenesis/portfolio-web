@@ -32,6 +32,23 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Whole-page fade-in on first load. `both` fill-mode holds opacity:0
+     before the animation starts (no flash of full content pre-animation)
+     and opacity:1 after it ends. Pure CSS, runs once per real page
+     load/refresh — the App Router keeps <body> mounted across client-side
+     navigations, so this doesn't replay on every route change, matching
+     "when the site first loads," not "every navigation." Disabled entirely
+     under prefers-reduced-motion below. */
+  animation: page-fade-in 0.45s ease both;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 main {
@@ -274,6 +291,25 @@ a {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-accent) 35%, transparent);
 }
 
+/* "Copy Email" button + its fade in/out confirmation message. The message
+   is always in the DOM (Contact.tsx never conditionally renders it) —
+   only opacity moves, driven by the .copy-confirmation-visible class the
+   component toggles for exactly 2 seconds. */
+.copy-email-btn {
+  transition: color 0.2s ease;
+}
+.copy-email-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.copy-confirmation {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.copy-confirmation-visible {
+  opacity: 1;
+}
+
 /* Admin workspace: an editorial control surface for managing the portfolio. */
 .admin-shell,
 .admin-form {
@@ -429,6 +465,12 @@ a {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  body {
+    animation: none;
+  }
+  .copy-confirmation {
+    transition: none;
   }
   .reveal {
     opacity: 1;
