@@ -119,20 +119,26 @@ export default function Projects({ projects }: { projects: ProjectCardData[] }) 
             <article
               style={{
                 borderRadius: "var(--radius-lg)",
-                borderColor: "var(--color-border)",
+                // border-color lives on .project-card (globals.css), not
+                // here — an inline value would outrank both .project-card's
+                // and .hover-lift's :hover rules on specificity, silently
+                // disabling the hover-brighten entirely. Confirmed via
+                // computed-style check: border-color measured identical
+                // resting vs. hovered before this fix, on every card using
+                // this pattern (Skills, Education, Contact, and here).
                 // Same faint top-left corner glow as the premium-card
                 // treatment on Skills/Education/Contact (a second
                 // background-image layered under the solid color) — brings
-                // Projects into the same visual family. hover-lift already
-                // gives these cards a border-brighten + lift + shadow on
-                // hover (a bit more elaborate than premium-card's own
-                // border-only hover), so that's left as-is rather than
-                // stacking a second, conflicting transform declaration.
+                // Projects into the same visual family; left as
+                // --color-info (unchanged) so the passive glow still reads
+                // as the same family language as those sections. The hover
+                // state itself (.project-card, globals.css) is deliberately
+                // --color-primary instead — see that rule's comment.
                 backgroundImage:
                   "radial-gradient(circle at top left, color-mix(in srgb, var(--color-info) 7%, transparent), transparent 65%)",
                 backgroundColor: "var(--color-bg-secondary)",
               }}
-              className="hover-lift flex flex-col overflow-hidden border"
+              className="project-card hover-lift flex flex-col overflow-hidden border"
             >
               {project.screenshots[0]?.url && (
                 <DeviceFrame category={project.category}>

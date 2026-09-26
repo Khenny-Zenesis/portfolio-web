@@ -154,7 +154,12 @@ export default function Skills({ skills, projectLinks = [] }: { skills: SkillDat
                 key={category}
                 style={{
                   borderRadius: "var(--radius-lg)",
-                  borderColor: "var(--color-border)",
+                  // border-color intentionally NOT set here — it lives on
+                  // .premium-card in globals.css instead. An inline
+                  // border-color would outrank .premium-card:hover's own
+                  // border-color on specificity and silently block the
+                  // hover-brighten effect entirely, which is exactly what
+                  // was happening here before this was caught and fixed.
                   // item 5: an extremely faint glow in the card's top-left
                   // corner — a second background layer under the card's
                   // own solid color (valid multi-background CSS), not a

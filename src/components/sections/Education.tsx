@@ -79,7 +79,9 @@ export default function Education() {
               key={entry.title}
               style={{
                 borderRadius: "var(--radius-lg)",
-                borderColor: "var(--color-border)",
+                // border-color lives on .premium-card (globals.css), not
+                // here — an inline value would outrank and silently
+                // disable its :hover rule. See Skills.tsx's comment.
                 backgroundImage:
                   "radial-gradient(circle at top left, color-mix(in srgb, var(--color-info) 7%, transparent), transparent 65%)",
                 backgroundColor: "var(--color-bg-secondary)",

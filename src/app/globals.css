@@ -101,6 +101,14 @@ a {
    token-driven too. Larger blur + lower opacity than the first version,
    for a softer glow rather than a hard-edged shadow. */
 .about-photo {
+  /* border moved here from an inline style in About.tsx — an inline
+     border/border-color always outranks a class's :hover rule on
+     specificity, which was silently preventing this hover effect (and the
+     same bug in premium-card/project-card below) from ever actually
+     firing. Confirmed via computed-style check, not assumed: border-color
+     measured identical before and after :hover on every one of these
+     cards until this fix. */
+  border: 1px solid var(--color-border);
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   box-shadow: 0 12px 32px color-mix(in srgb, var(--color-bg-primary) 60%, transparent);
 }
@@ -184,10 +192,34 @@ a {
    prefers-reduced-motion override beyond what's already safe by default.
    ========================================================================== */
 .premium-card {
+  /* border-color lives here now, not as an inline style on each card —
+     see the .about-photo comment above for why that matters. */
+  border-color: var(--color-border);
   transition: border-color 0.2s ease;
 }
 .premium-card:hover {
   border-color: color-mix(in srgb, var(--color-info) 45%, var(--color-border));
+}
+
+/* Projects — the same border-only hover-brighten mechanism as premium-card
+   above, but explicitly --color-primary (the site's one bold accent)
+   rather than --color-info: these are the actual product/case-study cards,
+   the most "go look at this" section on the site, so the hover cue uses
+   the accent itself rather than the cooler family-glow blue the passive
+   corner glow (still --color-info, left as-is) uses elsewhere. Layered
+   alongside .hover-lift, which Projects cards already carry — its own
+   border-color already resolves to --color-border-accent, the same hex as
+   --color-primary in design-tokens.css, so this doesn't change what
+   renders, it makes that intentional and named rather than a coincidence
+   of two tokens currently sharing a value. Held back until real project
+   screenshots existed, so the cards could be judged with real imagery
+   rather than placeholder text-only cards; that's true now. */
+.project-card {
+  border-color: var(--color-border);
+  transition: border-color 0.2s ease;
+}
+.project-card:hover {
+  border-color: var(--color-primary);
 }
 
 .skill-chip {
@@ -230,6 +262,7 @@ a {
 }
 
 .contact-field {
+  border-color: var(--color-border);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 /* Replaces the browser default outline rather than removing it outright

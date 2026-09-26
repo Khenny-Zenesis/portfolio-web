@@ -9,11 +9,16 @@ import Reveal from "@/components/Reveal";
 // small dot + "About Me" eyebrow, a greeting-style display headline with
 // the name in the accent color, bio split into short paragraphs rather
 // than one dense block, portrait photo in a simple thin frame — no glow,
-// no float animation here, unlike Hero's treatment. Same real bio text as
-// before, just reformatted into natural paragraph breaks, not reworded.
+// no float animation here, unlike Hero's treatment.
+//
+// Paragraph 2 drops "scholarship-funded" (per explicit request, same
+// rationale as Education.tsx dropping that same detail from its cards) —
+// still says it's a real, dedicated Product Management Bootcamp, just
+// without the funding-source detail that could read as a caveat to a
+// recruiter or investor rather than the accomplishment it is.
 const BIO_PARAGRAPHS = [
   "I am a Nigerian product engineer and AI builder who went from founding a salon business to building AI-powered startup products in months.",
-  "I completed a Product Design and Engineering Bootcamp specializing in context engineering, Next.js, TypeScript, and AI-assisted development, and I'm currently building my product management foundation through a scholarship-funded bootcamp.",
+  "I completed a Product Design and Engineering Bootcamp specializing in context engineering, Next.js, TypeScript, and AI-assisted development, and I'm currently building my product management foundation through a dedicated Product Management Bootcamp.",
   "I'm the founder of Provly — an AI field-reporting tool for independent contractors in Africa — and I build in public, documenting every step.",
   "I hold a BSc in Business Administration. Available immediately for remote roles in product engineering, AI product development, and product management.",
 ];
@@ -132,7 +137,10 @@ export default function About() {
         <div
           style={{
             borderRadius: "var(--radius-md)",
-            border: "1px solid var(--color-border)",
+            // border lives on .about-photo (globals.css) now, not here — an
+            // inline border would outrank .about-photo:hover's own
+            // border-color and silently disable it, exactly as it was
+            // doing before this was caught via a computed-style check.
           }}
           className="about-photo relative aspect-4/5 w-full overflow-hidden"
         >

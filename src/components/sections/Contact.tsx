@@ -27,7 +27,11 @@ type Status = "idle" | "submitting" | "success" | "error";
 
 const fieldStyle = {
   borderRadius: "var(--radius-md)",
-  borderColor: "var(--color-border)",
+  // border-color lives on .contact-field (globals.css) instead — an inline
+  // value here would outrank and silently disable :focus-visible's own
+  // border-color change (the box-shadow ring still showed either way, an
+  // inline style doesn't touch box-shadow, which is exactly why this one
+  // slipped past visual review before — the ring alone read as "it works").
   background: "var(--color-bg-secondary)",
   color: "var(--color-text-primary)",
   fontFamily: "var(--font-primary)",
@@ -95,7 +99,8 @@ export default function Contact() {
         <div
           style={{
             borderRadius: "var(--radius-lg)",
-            borderColor: "var(--color-border)",
+            // border-color lives on .premium-card (globals.css), not here —
+            // see Skills.tsx's comment on the same pattern.
             backgroundImage:
               "radial-gradient(circle at top left, color-mix(in srgb, var(--color-info) 7%, transparent), transparent 65%)",
             backgroundColor: "var(--color-bg-secondary)",
@@ -137,7 +142,8 @@ export default function Contact() {
           onSubmit={handleSubmit}
           style={{
             borderRadius: "var(--radius-lg)",
-            borderColor: "var(--color-border)",
+            // border-color lives on .premium-card (globals.css), not here —
+            // see Skills.tsx's comment on the same pattern.
             backgroundImage:
               "radial-gradient(circle at top left, color-mix(in srgb, var(--color-info) 7%, transparent), transparent 65%)",
             backgroundColor: "var(--color-bg-secondary)",
